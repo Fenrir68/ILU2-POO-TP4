@@ -1,14 +1,24 @@
 package villagegaulois;
 
 import personnages.Gaulois;
+import produit.Produit;
 
-public class Etal {
+public class Etal  <P extends Produit> implements IEtal{
 	private Gaulois vendeur;
-	private String produit;
+	private P[] produits;
+	private int nbProduit=0;
+	private int prix;
 	private int quantiteDebutMarche;
 	private int quantite;
 	private boolean etalOccupe = false;
 
+	public void installerVendeur(Gaulois vendeur, P[] produit, int prix, int quantitePourPrix) {
+		this.vendeur = vendeur;
+		this.produits = produit;
+		this.prix = prix;
+		this.nbProduit = produit.length;
+	}
+	
 	public boolean isEtalOccupe() {
 		return etalOccupe;
 	}
@@ -19,6 +29,49 @@ public class Etal {
 
 	public int getQuantite() {
 		return quantite;
+	}
+
+	@Override
+	public int contientProduit(String produit, int quantiteSouhaitee) {
+		int quantiteAVendre = 0;
+		if (nbProduit != 0 && this.produits[0].getNom().equals(produit)) {
+		if (nbProduit >= quantiteSouhaitee) {
+		quantiteAVendre = quantiteSouhaitee;
+		} else {
+		quantiteAVendre = nbProduit;
+		}
+		}
+		return quantiteAVendre;
+	}
+
+	@Override
+	public int acheterProduit(int quantiteSouhaitee) {
+		int prixPaye = 0;
+		for (int i = nbProduit - 1; i > nbProduit - quantiteSouhaitee - 1 || i > 1; i--) {
+		prixPaye += produits[i].calculerPrix(prix); //question 3.d
+		}
+		if (nbProduit >= quantiteSouhaitee) {
+		nbProduit -= quantiteSouhaitee;
+		} else {
+		nbProduit = 0;
+		}
+		return prixPaye;
+	}
+
+	@Override
+	public String etatEtal() {
+		StringBuilder chaine = new StringBuilder(vendeur.getNom());
+		if (nbProduit > 0) {
+		chaine.append(" vend ");
+		chaine.append(nbProduit + " produits :");
+		for (int i = 0; i < nbProduit; i++) {
+		chaine.append("\n- " + produits[i].decrireProduit());
+		}
+		} else {
+		chaine.append(" n'a plus rien à vendre.");
+		}
+		chaine.append("\n");
+		return chaine.toString();
 	}
 
 }
